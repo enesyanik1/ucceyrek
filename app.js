@@ -1,4 +1,3 @@
-
 const $ = s => document.querySelector(s);
 
 const money = (n, d = 2) =>
@@ -330,6 +329,90 @@ calcSell?.addEventListener(
 );
 
 /* =====================================
+   ALTIN VE DÖVİZ ÇEVİRİCİ
+===================================== */
+
+let converterDirection = 'toAsset';
+const converterAsset = $('#converter-asset');
+const converterAmount = $('#converter-amount');
+const converterTotal = $('#converter-total');
+const converterRate = $('#converter-rate');
+const converterLabel = $('#converter-input-label');
+const converterToAsset = $('#converter-to-asset');
+const converterToTry = $('#converter-to-try');
+
+const converterUnits = {
+  GRAM_ALTIN_TRY: 'gram',
+  CEYREK_YENI_TRY: 'adet',
+  YARIM_YENI_TRY: 'adet',
+  TAM_YENI_TRY: 'adet',
+  ATA_YENI_TRY: 'adet',
+  HAS_ALTIN_TRY: 'gram',
+  USD_TRY: 'USD',
+  EUR_TRY: 'EUR',
+  GBP_TRY: 'GBP'
+};
+
+function updateConverter() {
+  if (!converterAsset || !converterAmount || !converterTotal) return;
+  const item = marketKalemler[converterAsset.value];
+  const unit = converterUnits[converterAsset.value] || 'birim';
+  const toAsset = converterDirection === 'toAsset';
+  const raw = converterAmount.value.trim();
+  const quantity = Number(raw.replace(',', '.'));
+
+  converterToAsset.classList.toggle('active', toAsset);
+  converterToTry.classList.toggle('active', !toAsset);
+  converterToAsset.setAttribute('aria-pressed', String(toAsset));
+  converterToTry.setAttribute('aria-pressed', String(!toAsset));
+  converterLabel.textContent = toAsset
+    ? 'Türk lirası miktarı (₺)'
+    : 'Altın / döviz miktarı (' + unit + ')';
+
+  if (!item) {
+    converterTotal.textContent = 'Fiyat verisi bekleniyor…';
+    converterRate.textContent = 'Seçilen varlığın fiyatı henüz alınamadı';
+    return;
+  }
+  if (!raw || !Number.isFinite(quantity) || quantity <= 0) {
+    converterTotal.textContent = 'Geçerli bir miktar girin';
+    converterRate.textContent = 'Miktar sıfırdan büyük olmalıdır';
+    return;
+  }
+
+  const rawPrice = toAsset ? item.satis : item.alis;
+  const unitPrice = rawPrice == null || rawPrice === '' ? NaN : Number(rawPrice);
+  if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+    converterTotal.textContent = 'Fiyat mevcut değil';
+    converterRate.textContent = 'Bu varlık için geçerli fiyat bulunamadı';
+    return;
+  }
+  const result = toAsset ? quantity / unitPrice : quantity * unitPrice;
+  if (!Number.isFinite(result)) {
+    converterTotal.textContent = 'Hesaplama yapılamadı';
+    converterRate.textContent = 'Miktarı kontrol edin';
+    return;
+  }
+  converterTotal.textContent = toAsset
+    ? result.toLocaleString('tr-TR', { maximumFractionDigits: 6 }) + ' ' + unit
+    : '₺ ' + money(result, 2);
+  converterRate.textContent = '1 ' + unit + ' = ₺ ' + money(unitPrice, 2) +
+    (toAsset ? ' (piyasa satış fiyatı)' : ' (piyasa alış fiyatı)') +
+    (stale(item) ? ' · ⚠ Eski fiyat' : '');
+}
+
+converterAsset?.addEventListener('change', updateConverter);
+converterAmount?.addEventListener('input', updateConverter);
+converterToAsset?.addEventListener('click', () => {
+  converterDirection = 'toAsset';
+  updateConverter();
+});
+converterToTry?.addEventListener('click', () => {
+  converterDirection = 'toTry';
+  updateConverter();
+});
+
+/* =====================================
    ALTIN VE DÖVİZ VERİLERİ
 ===================================== */
 
@@ -409,6 +492,7 @@ async function markets() {
     /* HESAPLAYICIYI GÜNCELLE */
 
     updateCalculator();
+    updateConverter();
 
   } catch (e) {
     console.error('Piyasa hatası:', e);
@@ -433,6 +517,7 @@ async function markets() {
     marketKalemler = {};
 
     updateCalculator();
+    updateConverter();
   }
 }
 
@@ -649,6 +734,7 @@ $('#refresh').addEventListener(
 /* SİTEYİ BAŞLAT */
 
 updateCalculator();
+updateConverter();
 
 markets();
 
