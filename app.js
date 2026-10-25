@@ -16,9 +16,7 @@ const safe = s =>
     "'": '&#39;'
   }[c]));
 
-// Yalnızca görsellerin yeniden yayınlama izni
-// doğrulandığında true yapılmalıdır.
-const HABER_GORSELLERINE_IZIN_VAR = false;
+/* TARİH */
 
 const today = new Date();
 
@@ -33,6 +31,8 @@ $('#date').textContent = today.toLocaleDateString(
 );
 
 $('#year').textContent = today.getFullYear();
+
+/* PİYASA KODLARI */
 
 const goldCodes = [
   'GRAM_ALTIN_TRY',
@@ -50,7 +50,18 @@ const fxCodes = [
   'GBP_TRY'
 ];
 
-/* ALTIN VE DÖVİZ */
+/* HABER GÖRSELLERİ
+   Dosyalar GitHub ana dizininde bulunuyor.
+*/
+
+const kategoriGorselleri = {
+  ekonomi: '/ekonomi.webp',
+  'altın': '/altin.webp',
+  'döviz': '/doviz.webp',
+  borsa: '/borsa.webp'
+};
+
+/* FİYAT FORMATLAMA */
 
 function price(v, item) {
   if (v == null || !Number.isFinite(Number(v))) {
@@ -68,6 +79,8 @@ function price(v, item) {
   );
 }
 
+/* VERİ GÜNCELLİĞİ */
+
 function stale(item) {
   const t = new Date(item.guncelleme).getTime();
 
@@ -76,6 +89,8 @@ function stale(item) {
     Date.now() - t > 3600000
   );
 }
+
+/* FİYAT DEĞİŞİMİ */
 
 function change(item) {
   if (item.degisim24s == null) {
@@ -91,6 +106,8 @@ function change(item) {
     '%'
   );
 }
+
+/* PİYASA KARTLARI */
 
 function card(item) {
   return `
@@ -116,13 +133,17 @@ function card(item) {
       </div>
 
       <div class="sub">
-        ${stale(item)
-          ? '⚠ Eski veri'
-          : 'Güncel veri'}
+        ${
+          stale(item)
+            ? '⚠ Eski veri'
+            : 'Güncel veri'
+        }
       </div>
     </div>
   `;
 }
+
+/* PİYASA TABLOLARI */
 
 function row(item) {
   return `
@@ -137,6 +158,8 @@ function row(item) {
     </tr>
   `;
 }
+
+/* ALTIN VE DÖVİZ VERİLERİ */
 
 async function markets() {
   try {
@@ -229,10 +252,12 @@ async function markets() {
   }
 }
 
-/* HABERLER */
+/* HABER TARİHİ */
 
 function haberTarihi(value) {
-  if (!value) return 'Güncel haber';
+  if (!value) {
+    return 'Güncel haber';
+  }
 
   const date = new Date(value);
 
@@ -247,6 +272,8 @@ function haberTarihi(value) {
   });
 }
 
+/* GÜVENLİ HABER BAĞLANTISI */
+
 function guvenliAdres(value) {
   try {
     const url = new URL(value);
@@ -259,31 +286,34 @@ function guvenliAdres(value) {
   }
 }
 
+/* MODERN HABER KARTI */
+
 function haberKarti(item, topic) {
-  const title = safe(item.title || 'Finans haberi');
-  const source = safe(item.source || 'Haber kaynağı');
-  const category = safe(topic.toLocaleUpperCase('tr-TR'));
-  const date = safe(haberTarihi(item.date));
+  const title = safe(
+    item.title || 'Finans haberi'
+  );
+
+  const source = safe(
+    item.source || 'Haber kaynağı'
+  );
+
+  const category = safe(
+    topic.toLocaleUpperCase('tr-TR')
+  );
+
+  const date = safe(
+    haberTarihi(item.date)
+  );
 
   const link = guvenliAdres(item.link);
-  if (!link) return '';
 
-  const image = HABER_GORSELLERINE_IZIN_VAR
-    ? guvenliAdres(item.image)
-    : null;
+  if (!link) {
+    return '';
+  }
 
-  const imageHTML = image
-    ? `
-      <img
-        src="${safe(image)}"
-        alt="${title}"
-        loading="lazy"
-        decoding="async"
-        referrerpolicy="no-referrer"
-        onerror="this.remove()"
-      >
-    `
-    : '';
+  const image =
+    kategoriGorselleri[topic] ||
+    kategoriGorselleri.ekonomi;
 
   return `
     <a
@@ -294,7 +324,13 @@ function haberKarti(item, topic) {
       aria-label="${title} - Kaynağa git"
     >
       <div class="newsimage">
-        ${imageHTML}
+        <img
+          src="${safe(image)}"
+          alt="${category} haber görseli"
+          loading="lazy"
+          decoding="async"
+          onerror="this.remove()"
+        >
       </div>
 
       <div class="newsbody">
@@ -324,6 +360,8 @@ function haberKarti(item, topic) {
   `;
 }
 
+/* HABERLERİ GETİR */
+
 let newsRequestId = 0;
 
 async function news(topic = 'ekonomi') {
@@ -337,8 +375,11 @@ async function news(topic = 'ekonomi') {
 
   try {
     const r = await fetch(
-      '/api/news?topic=' + encodeURIComponent(topic),
-      { cache: 'no-store' }
+      '/api/news?topic=' +
+      encodeURIComponent(topic),
+      {
+        cache: 'no-store'
+      }
     );
 
     if (!r.ok) {
@@ -351,8 +392,6 @@ async function news(topic = 'ekonomi') {
       throw Error('Haber bulunamadı');
     }
 
-    // Kullanıcı kategori değiştirdiyse
-    // önceki isteğin sonucunu gösterme.
     if (requestId !== newsRequestId) {
       return;
     }
@@ -362,7 +401,9 @@ async function news(topic = 'ekonomi') {
       .filter(Boolean);
 
     if (!cards.length) {
-      throw Error('Gösterilecek haber bulunamadı');
+      throw Error(
+        'Gösterilecek haber bulunamadı'
+      );
     }
 
     root.innerHTML = cards.join('');
@@ -382,33 +423,45 @@ async function news(topic = 'ekonomi') {
   }
 }
 
-/* KATEGORİ BUTONLARI */
+/* HABER KATEGORİ BUTONLARI */
 
-document.querySelectorAll('[data-topic]').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('[data-topic]')
-      .forEach(x => x.classList.remove('active'));
+document.querySelectorAll('[data-topic]')
+  .forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('[data-topic]')
+        .forEach(x =>
+          x.classList.remove('active')
+        );
 
-    b.classList.add('active');
+      b.classList.add('active');
 
-    news(b.dataset.topic);
+      news(b.dataset.topic);
+    });
   });
-});
 
-/* YENİLE */
+/* YENİLE BUTONU */
 
-$('#refresh').addEventListener('click', () => {
-  markets();
+$('#refresh').addEventListener(
+  'click',
+  () => {
+    markets();
 
-  news(
-    document.querySelector('[data-topic].active')
-      ?.dataset.topic || 'ekonomi'
-  );
-});
+    news(
+      document.querySelector(
+        '[data-topic].active'
+      )?.dataset.topic || 'ekonomi'
+    );
+  }
+);
 
-/* BAŞLAT */
+/* SİTEYİ BAŞLAT */
 
 markets();
 news();
 
-setInterval(markets, 5 * 60 * 1000);
+/* 5 DAKİKADA BİR FİYATLARI YENİLE */
+
+setInterval(
+  markets,
+  5 * 60 * 1000
+);
