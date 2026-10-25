@@ -1,5 +1,8 @@
-ÜÇÇEYREK MARKA + SEO PAKETİ
+ÜÇÇEYREK SEO PAKETİ
 
-ZIP içindeki index.html ve tüm görsel dosyalarını GitHub ucceyrek deposunun kök dizinine yükleyin.
-Mevcut index.html üzerine yazın. style.css, app.js, api, sitemap.xml ve robots.txt dosyalarını silmeyin veya değiştirmeyin.
-Cloudflare Pages dağıtımı tamamlandıktan sonra /favicon.ico ve /og-image.jpg adreslerini test edin.
+ZIP içindeki index.html, sitemap.xml ve 5 klasörü GitHub deposunun ANA DİZİNİNE yükleyin.
+Mevcut index.html ve sitemap.xml dosyalarını değiştirin.
+style.css, app.js, API dosyaları ve mevcut görselleri silmeyin.
+Cloudflare Pages dağıtımı tamamlandıktan sonra /gram-altin/, /ceyrek-altin/, /dolar-kuru/, /euro-kuru/, /altin-hesaplama/ adreslerini kontrol edin.
+Ardından Search Console'a sitemap.xml'i yeniden gönderin.
+Not: Canlı fiyatlar mevcut /api/markets servisinden okunur; servis çalışmıyorsa bilgilendirme mesajı görünür.
