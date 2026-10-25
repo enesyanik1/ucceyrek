@@ -1,8 +1,6 @@
-ÜÇÇEYREK SEO PAKETİ
+ÜçÇeyrek AdSense doğrulama paketi
 
-ZIP içindeki index.html, sitemap.xml ve 5 klasörü GitHub deposunun ANA DİZİNİNE yükleyin.
-Mevcut index.html ve sitemap.xml dosyalarını değiştirin.
-style.css, app.js, API dosyaları ve mevcut görselleri silmeyin.
-Cloudflare Pages dağıtımı tamamlandıktan sonra /gram-altin/, /ceyrek-altin/, /dolar-kuru/, /euro-kuru/, /altin-hesaplama/ adreslerini kontrol edin.
-Ardından Search Console'a sitemap.xml'i yeniden gönderin.
-Not: Canlı fiyatlar mevcut /api/markets servisinden okunur; servis çalışmıyorsa bilgilendirme mesajı görünür.
+Bu ZIP içindeki 6 adet index.html dosyasını klasör yapısını koruyarak GitHub deponuzdaki aynı konumlara yükleyin.
+Mevcut style.css, app.js, API ve diğer dosyaları değiştirmeyin.
+Cloudflare Pages yayını başarılı olunca AdSense panelinde Kodu yerleştirdim > Doğrula adımlarını tamamlayın.
+Bu işlem reklamların hemen gösterileceği anlamına gelmez; Google site incelemesi gerekir.
