@@ -50,9 +50,7 @@ const fxCodes = [
   'GBP_TRY'
 ];
 
-/* HABER GÖRSELLERİ
-   Dosyalar GitHub ana dizininde bulunuyor.
-*/
+/* HABER GÖRSELLERİ */
 
 const kategoriGorselleri = {
   ekonomi: '/ekonomi.webp',
@@ -159,7 +157,181 @@ function row(item) {
   `;
 }
 
-/* ALTIN VE DÖVİZ VERİLERİ */
+/* =====================================
+   ALTIN VE DÖVİZ AL-SAT HESAPLAYICI
+===================================== */
+
+let marketKalemler = {};
+let calcMode = 'buy';
+
+const calcAsset = $('#calc-asset');
+const calcQuantity = $('#calc-quantity');
+const calcBuy = $('#calc-buy');
+const calcSell = $('#calc-sell');
+
+const calcTotal = $('#calc-total');
+const calcResultLabel = $('#calc-result-label');
+const calcUnitPrice = $('#calc-unit-price');
+const calcAmount = $('#calc-amount');
+
+/* HESAPLAMA */
+
+function updateCalculator() {
+  if (!calcAsset || !calcQuantity || !calcTotal) {
+    return;
+  }
+
+  const item = marketKalemler[calcAsset.value];
+
+  const rawQuantity = calcQuantity.value.trim();
+
+  const quantity = Number(
+    rawQuantity.replace(',', '.')
+  );
+
+  const unit =
+    calcAsset.value === 'GRAM_ALTIN_TRY' ||
+    calcAsset.value === 'HAS_ALTIN_TRY'
+      ? 'gram'
+      : fxCodes.includes(calcAsset.value)
+        ? 'birim'
+        : 'adet';
+
+  const isBuy = calcMode === 'buy';
+
+  calcBuy?.classList.toggle('active', isBuy);
+  calcSell?.classList.toggle('active', !isBuy);
+
+  calcBuy?.setAttribute(
+    'aria-pressed',
+    String(isBuy)
+  );
+
+  calcSell?.setAttribute(
+    'aria-pressed',
+    String(!isBuy)
+  );
+
+  calcResultLabel.textContent = isBuy
+    ? 'Tahmini ödenecek tutar'
+    : 'Tahmini alınacak tutar';
+
+  /* VERİ KONTROLÜ */
+
+  if (!item) {
+    calcTotal.textContent =
+      'Fiyat verisi bekleniyor…';
+
+    calcUnitPrice.textContent =
+      'Birim fiyat: —';
+
+    calcAmount.textContent =
+      'Miktar: —';
+
+    return;
+  }
+
+  /* MİKTAR KONTROLÜ */
+
+  const unitPrice = Number(
+    isBuy ? item.satis : item.alis
+  );
+
+  if (
+    !rawQuantity ||
+    !Number.isFinite(quantity) ||
+    quantity <= 0
+  ) {
+    calcTotal.textContent =
+      'Geçerli bir miktar girin';
+
+    calcUnitPrice.textContent =
+      'Birim fiyat: ' + price(unitPrice, item);
+
+    calcAmount.textContent =
+      'Miktar: —';
+
+    return;
+  }
+
+  /* FİYAT KONTROLÜ */
+
+  if (
+    !Number.isFinite(unitPrice) ||
+    unitPrice <= 0
+  ) {
+    calcTotal.textContent =
+      'Fiyat mevcut değil';
+
+    calcUnitPrice.textContent =
+      'Birim fiyat: —';
+
+    calcAmount.textContent =
+      'Miktar: ' + money(quantity, 4) + ' ' + unit;
+
+    return;
+  }
+
+  /* TOPLAM TUTAR */
+
+  const total = quantity * unitPrice;
+
+  calcTotal.textContent =
+    '₺ ' + money(total, 2);
+
+  calcUnitPrice.textContent =
+    (
+      isBuy
+        ? 'Piyasa satış fiyatı: '
+        : 'Piyasa alış fiyatı: '
+    ) +
+    price(unitPrice, item);
+
+  calcAmount.textContent =
+    'Miktar: ' +
+    quantity.toLocaleString('tr-TR', {
+      maximumFractionDigits: 4
+    }) +
+    ' ' +
+    unit +
+    (
+      stale(item)
+        ? ' · ⚠ Eski fiyat'
+        : ''
+    );
+}
+
+/* HESAPLAYICI OLAYLARI */
+
+calcAsset?.addEventListener(
+  'change',
+  updateCalculator
+);
+
+calcQuantity?.addEventListener(
+  'input',
+  updateCalculator
+);
+
+calcBuy?.addEventListener(
+  'click',
+  () => {
+    calcMode = 'buy';
+    updateCalculator();
+  }
+);
+
+calcSell?.addEventListener(
+  'click',
+  () => {
+    calcMode = 'sell';
+    updateCalculator();
+  }
+);
+
+/* =====================================
+   ALTIN VE DÖVİZ VERİLERİ
+===================================== */
 
 async function markets() {
   try {
@@ -178,6 +350,10 @@ async function markets() {
     }
 
     const k = data.kalemler;
+
+    /* FİYATLARI HESAPLAYICIYA AKTAR */
+
+    marketKalemler = k;
 
     const gold = goldCodes
       .map(c => k[c])
@@ -230,6 +406,10 @@ async function markets() {
       'Fiyatlar işlem yapılan kuruma göre değişebilir. ' +
       'Kaynak: hesaplialtin.com.';
 
+    /* HESAPLAYICIYI GÜNCELLE */
+
+    updateCalculator();
+
   } catch (e) {
     console.error('Piyasa hatası:', e);
 
@@ -249,10 +429,16 @@ async function markets() {
 
     $('#ticker').textContent =
       'Piyasa bağlantısı kullanılamıyor';
+
+    marketKalemler = {};
+
+    updateCalculator();
   }
 }
 
-/* HABER TARİHİ */
+/* =====================================
+   HABER TARİHİ
+===================================== */
 
 function haberTarihi(value) {
   if (!value) {
@@ -286,7 +472,9 @@ function guvenliAdres(value) {
   }
 }
 
-/* MODERN HABER KARTI */
+/* =====================================
+   HABER KARTLARI
+===================================== */
 
 function haberKarti(item, topic) {
   const title = safe(
@@ -360,7 +548,9 @@ function haberKarti(item, topic) {
   `;
 }
 
-/* HABERLERİ GETİR */
+/* =====================================
+   HABERLERİ GETİR
+===================================== */
 
 let newsRequestId = 0;
 
@@ -439,7 +629,9 @@ document.querySelectorAll('[data-topic]')
     });
   });
 
-/* YENİLE BUTONU */
+/* =====================================
+   YENİLE BUTONU
+===================================== */
 
 $('#refresh').addEventListener(
   'click',
@@ -456,7 +648,10 @@ $('#refresh').addEventListener(
 
 /* SİTEYİ BAŞLAT */
 
+updateCalculator();
+
 markets();
+
 news();
 
 /* 5 DAKİKADA BİR FİYATLARI YENİLE */
