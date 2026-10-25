@@ -11,3 +11,4 @@ Piyasa API: USD/TRY, EUR/TRY, GBP/TRY için open.er-api.com, ons altın için go
 Haberler Google News RSS arama sonuçlarının başlık ve kaynak bağlantılarından oluşur; haberler sitenizde yeniden yayınlanmaz. RSS erişimi/uygunluğu değişebilir. Kaynak kullanım koşullarını kontrol edin.
 
 Bu bir ilk sürümdür. Gerçek alış-satış verileri için lisanslı fiyat sağlayıcısı entegrasyonu gereklidir.
+Ucceyrek yayin guncellemesi
