@@ -1,33 +1,65 @@
 
-const queries = {
-  ekonomi: "Türkiye ekonomi finans",
-  "altın": "gram altın altın fiyatları",
-  "döviz": "dolar euro döviz kurları",
-  borsa: "Borsa İstanbul BIST"
-};
+const FEEDS = [
+  {
+    name: "TRT Haber",
+    url: "https://www.trthaber.com/ekonomi_articles.rss"
+  },
+  {
+    name: "Anadolu Ajansı",
+    url: "https://www.aa.com.tr/tr/rss/default?cat=ekonomi"
+  }
+];
 
-const feeds = {
-  ekonomi: [
-    "https://www.trthaber.com/ekonomi_articles.rss",
-    "https://www.aa.com.tr/tr/rss/default?cat=ekonomi"
+const KEYWORDS = {
+  "altın": [
+    /\baltın\b/i,
+    /\bgram altın\b/i,
+    /\bçeyrek altın\b/i,
+    /\baltının\b/i,
+    /\baltında\b/i,
+    /\bons altın\b/i,
+    /\bkülçe\b/i
   ],
-  "altın": [],
-  "döviz": [],
-  borsa: []
+  "döviz": [
+    /\bdöviz\b/i,
+    /\bdolar\b/i,
+    /\beuro\b/i,
+    /\bavro\b/i,
+    /\bsterlin\b/i,
+    /\bkur\b/i,
+    /\bkurları\b/i,
+    /\bparite\b/i,
+    /\bmerkez bankası\b/i
+  ],
+  borsa: [
+    /\bborsa\b/i,
+    /\bbist\b/i,
+    /\bbist 100\b/i,
+    /\bhisse\b/i,
+    /\bhisseleri\b/i,
+    /\bendeks\b/i,
+    /\bborsa istanbul\b/i,
+    /\bpay piyasası\b/i,
+    /\bhalka arz\b/i
+  ]
 };
 
 function decode(value = "") {
   return String(value)
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">");
 }
 
 function getValue(xml, tag) {
-  const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escaped = tag.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+
   const match = xml.match(
     new RegExp(
       `<${escaped}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${escaped}>`,
@@ -39,14 +71,9 @@ function getValue(xml, tag) {
 }
 
 function getAttribute(tag, attribute) {
-  const escaped = attribute.replace(
-    /[.*+?^${}()|[\]\\]/g,
-    "\\$&"
-  );
-
   const match = tag.match(
     new RegExp(
-      `\\b${escaped}\\s*=\\s*["']([^"']+)["']`,
+      `\\b${attribute}\\s*=\\s*["']([^"']+)["']`,
       "i"
     )
   );
@@ -54,115 +81,100 @@ function getAttribute(tag, attribute) {
   return decode(match?.[1] || "").trim();
 }
 
-function validImage(url) {
-  if (!url) return null;
-
+function validUrl(value) {
   try {
-    const parsed = new URL(url);
+    const url = new URL(value);
 
-    if (parsed.protocol !== "https:") {
-      return null;
-    }
-
-    return parsed.href;
+    return url.protocol === "https:"
+      ? url.href
+      : null;
   } catch {
     return null;
   }
 }
 
 function extractImage(xml) {
-  // RSS Media RSS görselleri
-  const mediaContent = xml.match(
+  const media = xml.match(
     /<media:content\b[^>]*>/i
   );
 
-  if (mediaContent) {
-    const type = getAttribute(
-      mediaContent[0],
-      "type"
-    );
+  if (media) {
+    const type = getAttribute(media[0], "type");
 
     if (!type || type.startsWith("image/")) {
-      const image = validImage(
-        getAttribute(mediaContent[0], "url")
+      const url = validUrl(
+        getAttribute(media[0], "url")
       );
 
-      if (image) return image;
+      if (url) return url;
     }
   }
 
-  // Küçük haber görseli
   const thumbnail = xml.match(
     /<media:thumbnail\b[^>]*>/i
   );
 
   if (thumbnail) {
-    const image = validImage(
+    const url = validUrl(
       getAttribute(thumbnail[0], "url")
     );
 
-    if (image) return image;
+    if (url) return url;
   }
 
-  // RSS enclosure görseli
   const enclosures = [
     ...xml.matchAll(/<enclosure\b[^>]*>/gi)
   ];
 
   for (const match of enclosures) {
-    const type = getAttribute(
-      match[0],
-      "type"
-    );
+    const type = getAttribute(match[0], "type");
 
     if (type.startsWith("image/")) {
-      const image = validImage(
+      const url = validUrl(
         getAttribute(match[0], "url")
       );
 
-      if (image) return image;
+      if (url) return url;
     }
   }
 
   return null;
 }
 
-function parseRSS(xml, fallbackSource) {
+function parseRSS(xml, source) {
   return [
     ...xml.matchAll(
       /<item\b[^>]*>([\s\S]*?)<\/item>/gi
     )
   ]
-    .slice(0, 30)
+    .slice(0, 100)
     .map(match => {
       const item = match[1];
 
       return {
         title: getValue(item, "title"),
         link: getValue(item, "link"),
-        source:
-          getValue(item, "source") ||
-          fallbackSource,
+        source,
         date: getValue(item, "pubDate"),
         image: extractImage(item)
       };
     })
     .filter(item =>
       item.title &&
-      /^https:\/\//i.test(item.link)
+      validUrl(item.link)
     );
 }
 
-async function fetchFeed(url, source) {
+async function fetchFeed(feed) {
   const controller = new AbortController();
 
   const timeout = setTimeout(
     () => controller.abort(),
-    7000
+    9000
   );
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(feed.url, {
       signal: controller.signal,
       headers: {
         Accept:
@@ -178,12 +190,11 @@ async function fetchFeed(url, source) {
     }
 
     const xml = await response.text();
-    const items = parseRSS(xml, source);
+
+    const items = parseRSS(xml, feed.name);
 
     if (!items.length) {
-      throw new Error(
-        "RSS içerisinde haber bulunamadı"
-      );
+      throw new Error("RSS boş veya okunamadı");
     }
 
     return items;
@@ -192,57 +203,60 @@ async function fetchFeed(url, source) {
   }
 }
 
+function matchesTopic(item, topic) {
+  if (topic === "ekonomi") {
+    return true;
+  }
+
+  const patterns = KEYWORDS[topic];
+
+  if (!patterns) {
+    return false;
+  }
+
+  return patterns.some(pattern =>
+    pattern.test(item.title)
+  );
+}
+
 export async function onRequestGet({ request }) {
-  const topic = new URL(request.url)
-    .searchParams.get("topic") || "ekonomi";
+  const url = new URL(request.url);
 
-  const selected = Object.hasOwn(
-    queries,
-    topic
-  ) ? topic : "ekonomi";
+  const requested =
+    url.searchParams.get("topic") || "ekonomi";
 
-  const googleURL =
-    "https://news.google.com/rss/search?q=" +
-    encodeURIComponent(queries[selected]) +
-    "&hl=tr&gl=TR&ceid=TR:tr";
-
-  const sources = [
-    {
-      url: googleURL,
-      name: "Google News"
-    },
-    ...(feeds[selected] || []).map(url => ({
-      url,
-      name: url.includes("trthaber")
-        ? "TRT Haber"
-        : "Anadolu Ajansı"
-    }))
-  ];
+  const topic = [
+    "ekonomi",
+    "altın",
+    "döviz",
+    "borsa"
+  ].includes(requested)
+    ? requested
+    : "ekonomi";
 
   const results = await Promise.allSettled(
-    sources.map(source =>
-      fetchFeed(source.url, source.name)
-    )
+    FEEDS.map(fetchFeed)
   );
 
-  const items = [];
-  const errors = [];
+  const allItems = [];
+  const diagnostics = [];
   const seen = new Set();
 
   results.forEach((result, index) => {
     if (result.status === "fulfilled") {
       for (const item of result.value) {
-        const key =
-          item.title.toLocaleLowerCase("tr-TR");
+        const key = item.title
+          .toLocaleLowerCase("tr-TR")
+          .trim();
 
         if (!seen.has(key)) {
           seen.add(key);
-          items.push(item);
+          allItems.push(item);
         }
       }
     } else {
-      errors.push({
-        source: sources[index].name,
+      diagnostics.push({
+        source: FEEDS[index].name,
         message: String(
           result.reason?.message ||
           "Bilinmeyen hata"
@@ -251,27 +265,35 @@ export async function onRequestGet({ request }) {
     }
   });
 
-  items.sort(
-    (a, b) =>
-      (Date.parse(b.date) || 0) -
-      (Date.parse(a.date) || 0)
-  );
+  const items = allItems
+    .filter(item => matchesTopic(item, topic))
+    .sort(
+      (a, b) =>
+        (Date.parse(b.date) || 0) -
+        (Date.parse(a.date) || 0)
+    )
+    .slice(0, 12);
+
+  const sourcesAvailable =
+    results.some(r => r.status === "fulfilled");
 
   return new Response(
     JSON.stringify({
-      items: items.slice(0, 12),
-      error: items.length
-        ? null
-        : "Haber kaynaklarına erişilemedi",
-      diagnostics: errors
+      items,
+      error: !sourcesAvailable
+        ? "Haber kaynaklarına erişilemedi"
+        : items.length === 0
+          ? "Bu kategoride güncel haber bulunamadı"
+          : null,
+      diagnostics
     }),
     {
-      status: items.length ? 200 : 503,
+      status: sourcesAvailable ? 200 : 503,
       headers: {
         "Content-Type":
           "application/json; charset=utf-8",
         "Cache-Control":
-          "public, max-age=600"
+          "public, max-age=300"
       }
     }
   );
