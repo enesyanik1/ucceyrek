@@ -1,4 +1,3 @@
-
 :root {
   --navy: #152b49;
   --blue: #235b92;
@@ -814,3 +813,22 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .calc-action, .calc-field select, .calc-field input { transition: none; }
 }
+
+
+/* ALTIN VE DÖVİZ ÇEVİRİCİ */
+.converter-section { scroll-margin-top: 28px; }
+.converter-card { max-width: 900px; padding: clamp(20px,3vw,36px); background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 12px 38px rgba(21,43,73,.06); }
+.converter-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+.converter-direction { min-height: 49px; padding: 12px; border: 1px solid #dce4ee; border-radius: 10px; background: #f6f8fb; color: #53677e; font-size: 13px; font-weight: 800; }
+.converter-direction.active { background: var(--navy); color: white; border-color: var(--navy); }
+.converter-fields { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+.converter-field { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.converter-field label { font-size: 13px; font-weight: 750; color: var(--navy); }
+.converter-field select, .converter-field input { width: 100%; min-height: 52px; padding: 12px 15px; border: 1px solid #dce4ee; border-radius: 11px; background: #fbfcfe; color: var(--navy); font: inherit; outline: none; }
+.converter-field select:focus, .converter-field input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(215,163,67,.15); }
+.converter-result { display: flex; flex-direction: column; gap: 11px; margin-top: 22px; padding: 26px; background: linear-gradient(135deg,#f2f6fc,#fffaf1); border: 1px solid #e8edf4; border-radius: 16px; }
+.converter-result > span { color: #63758b; font-size: 13px; font-weight: 700; }
+.converter-result strong { color: var(--navy); font-size: clamp(28px,4vw,43px); font-weight: 850; overflow-wrap: anywhere; }
+.converter-result small { color: #66788e; font-size: 13px; line-height: 1.6; }
+.converter-card > .note { margin: 17px 0 0; }
+@media(max-width:650px) { .converter-card { padding: 18px; border-radius: 16px; } .converter-fields { grid-template-columns: 1fr; gap: 16px; } .converter-switch { gap: 9px; } .converter-direction { font-size: 11px; padding: 10px 6px; } .converter-result { padding: 20px 16px; } }
