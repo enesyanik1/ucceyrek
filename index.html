@@ -1,49 +1,315 @@
+
 <!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="ÜçÇeyrek'te güncel gram, çeyrek, yarım ve tam altın alış-satış fiyatlarını, dolar ve euro kurlarını ve ekonomi haberlerini takip edin.">
+  <meta name="description" content="ÜçÇeyrek'te güncel altın alış-satış fiyatlarını, döviz kurlarını, al-sat hesaplayıcısını ve ekonomi haberlerini takip edin.">
   <title>ÜçÇeyrek | Altın, Döviz ve Ekonomi Haberleri</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="top"><div class="wrap topline"><span>Türkiye'nin finans gündemi</span><span id="date"></span></div></div>
+  <div class="top">
+    <div class="wrap topline">
+      <span>Türkiye'nin finans gündemi</span>
+      <span id="date"></span>
+    </div>
+  </div>
+
   <header class="wrap head">
-    <a class="brand" href="/" aria-label="ÜçÇeyrek ana sayfa"><span class="brandmark">¾</span><span>ÜÇ<span class="gold">ÇEYREK</span><small>ALTIN · DÖVİZ · EKONOMİ</small></span></a>
-    <nav><a href="#piyasalar">Piyasalar</a><a href="#altin">Altın</a><a href="#doviz">Döviz</a><a href="#haberler">Finans Haberleri</a></nav>
-    <button id="refresh" class="refresh" type="button">↻ Yenile</button>
+    <a class="brand" href="/" aria-label="ÜçÇeyrek ana sayfa">
+      <span class="brandmark">¾</span>
+      <span>
+        ÜÇ<span class="gold">ÇEYREK</span>
+        <small>ALTIN · DÖVİZ · EKONOMİ</small>
+      </span>
+    </a>
+
+    <nav>
+      <a href="#piyasalar">Piyasalar</a>
+      <a href="#altin">Altın</a>
+      <a href="#doviz">Döviz</a>
+      <a href="#hesaplayici">Al-Sat Hesapla</a>
+      <a href="#haberler">Finans Haberleri</a>
+    </nav>
+
+    <button id="refresh" class="refresh" type="button">
+      ↻ Yenile
+    </button>
   </header>
-  <div class="ticker"><div class="wrap" id="ticker">Güncel piyasa verileri yükleniyor…</div></div>
+
+  <div class="ticker">
+    <div class="wrap" id="ticker">
+      Güncel piyasa verileri yükleniyor…
+    </div>
+  </div>
+
   <main class="wrap">
+
     <section class="hero">
-      <div><span class="eyebrow">PİYASALARIN NABZI</span><h1>Finans dünyasını<br><em>yakından takip edin.</em></h1><p>Güncel altın ve döviz alış-satış fiyatları, ekonomi haberleri ve piyasalardaki gelişmeler tek bir yerde.</p><a class="primary" href="#piyasalar">Piyasaları incele <span>↗</span></a></div>
-      <div class="heroart" aria-hidden="true"><div class="artgrid"></div><div class="artline">⌁</div><div class="artcard"><span>GÜNCEL PİYASALAR</span><strong>₺ $ €</strong><small>ÜÇÇEYREK</small></div></div>
+      <div>
+        <span class="eyebrow">PİYASALARIN NABZI</span>
+        <h1>
+          Finans dünyasını<br>
+          <em>yakından takip edin.</em>
+        </h1>
+        <p>
+          Güncel altın ve döviz alış-satış fiyatları,
+          ekonomi haberleri ve piyasalardaki gelişmeler
+          tek bir yerde.
+        </p>
+        <a class="primary" href="#piyasalar">
+          Piyasaları incele <span>↗</span>
+        </a>
+      </div>
+
+      <div class="heroart" aria-hidden="true">
+        <div class="artgrid"></div>
+        <div class="artline">⌁</div>
+        <div class="artcard">
+          <span>GÜNCEL PİYASALAR</span>
+          <strong>₺ $ €</strong>
+          <small>ÜÇÇEYREK</small>
+        </div>
+      </div>
     </section>
+
     <section id="piyasalar" class="section">
-      <div class="sectionhead"><div><span class="eyebrow">PİYASA ÖZETİ</span><h2>Güncel piyasa görünümü</h2></div><div class="status"><span class="dot"></span><span id="updated">Veriler yükleniyor</span></div></div>
-      <div class="cards" id="summary"><div class="skeleton">Yükleniyor…</div></div>
-      <p class="note" id="market-note">Alış-satış fiyatları veri sağlayıcısından alınır; işlem yapılan kuruma göre farklılık gösterebilir.</p>
+      <div class="sectionhead">
+        <div>
+          <span class="eyebrow">PİYASA ÖZETİ</span>
+          <h2>Güncel piyasa görünümü</h2>
+        </div>
+        <div class="status">
+          <span class="dot"></span>
+          <span id="updated">Veriler yükleniyor</span>
+        </div>
+      </div>
+
+      <div class="cards" id="summary">
+        <div class="skeleton">Yükleniyor…</div>
+      </div>
+
+      <p class="note" id="market-note">
+        Alış-satış fiyatları veri sağlayıcısından alınır;
+        işlem yapılan kuruma göre farklılık gösterebilir.
+      </p>
     </section>
+
     <section class="section twocol">
       <div id="altin" class="panel">
-        <div class="panelhead"><div><span class="eyebrow">DEĞERLİ METALLER</span><h2>Altın fiyatları</h2></div><span class="pill">Alış / Satış</span></div>
-        <div class="tablewrap"><table><thead><tr><th>Ürün</th><th>Alış</th><th>Satış</th></tr></thead><tbody id="goldrows"><tr><td colspan="3">Yükleniyor…</td></tr></tbody></table></div>
+        <div class="panelhead">
+          <div>
+            <span class="eyebrow">DEĞERLİ METALLER</span>
+            <h2>Altın fiyatları</h2>
+          </div>
+          <span class="pill">Alış / Satış</span>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ürün</th>
+                <th>Alış</th>
+                <th>Satış</th>
+              </tr>
+            </thead>
+            <tbody id="goldrows">
+              <tr>
+                <td colspan="3">Yükleniyor…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+
       <div id="doviz" class="panel">
-        <div class="panelhead"><div><span class="eyebrow">DÖVİZ PİYASASI</span><h2>Döviz kurları</h2></div><span class="pill">Alış / Satış</span></div>
-        <div class="tablewrap"><table><thead><tr><th>Para birimi</th><th>Alış</th><th>Satış</th></tr></thead><tbody id="fxrows"><tr><td colspan="3">Yükleniyor…</td></tr></tbody></table></div>
+        <div class="panelhead">
+          <div>
+            <span class="eyebrow">DÖVİZ PİYASASI</span>
+            <h2>Döviz kurları</h2>
+          </div>
+          <span class="pill">Alış / Satış</span>
+        </div>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Para birimi</th>
+                <th>Alış</th>
+                <th>Satış</th>
+              </tr>
+            </thead>
+            <tbody id="fxrows">
+              <tr>
+                <td colspan="3">Yükleniyor…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
-    <section id="haberler" class="section newssection">
-      <div class="sectionhead"><div><span class="eyebrow">EKONOMİ GÜNDEMİ</span><h2>Finans haberleri</h2><p>Güvenilir kaynaklardan derlenen güncel başlıklar</p></div><div class="tabs"><button class="active" data-topic="ekonomi">Ekonomi</button><button data-topic="altın">Altın</button><button data-topic="döviz">Döviz</button><button data-topic="borsa">Borsa</button></div></div>
-      <div id="news" class="newsgrid"><div class="skeleton">Haberler yükleniyor…</div></div>
-      <p class="note">Haber başlıkları kaynak bağlantılarıyla sunulur. Haberlerin tam metinleri kaynak sitelerde açılır.</p>
+
+    <!-- ALTIN VE DÖVİZ AL-SAT HESAPLAYICI -->
+
+    <section id="hesaplayici" class="section calc-section">
+      <div class="sectionhead">
+        <div>
+          <span class="eyebrow">ÜÇÇEYREK HESAPLAMA ARAÇLARI</span>
+          <h2>Altın ve Döviz Al-Sat Hesaplayıcı</h2>
+          <p>
+            Almak veya satmak istediğiniz miktarı girin,
+            güncel piyasa fiyatına göre toplam tutarı hesaplayın.
+          </p>
+        </div>
+      </div>
+
+      <div class="calc-card">
+        <div class="calc-fields">
+          <div class="calc-field">
+            <label for="calc-asset">Altın veya döviz seçin</label>
+            <select id="calc-asset">
+              <option value="GRAM_ALTIN_TRY">Gram Altın</option>
+              <option value="CEYREK_YENI_TRY">Çeyrek Altın</option>
+              <option value="YARIM_YENI_TRY">Yarım Altın</option>
+              <option value="TAM_YENI_TRY">Tam Altın</option>
+              <option value="ATA_YENI_TRY">Ata Altın</option>
+              <option value="HAS_ALTIN_TRY">Has Altın</option>
+              <option value="USD_TRY">Amerikan Doları</option>
+              <option value="EUR_TRY">Euro</option>
+              <option value="GBP_TRY">İngiliz Sterlini</option>
+            </select>
+          </div>
+
+          <div class="calc-field">
+            <label for="calc-quantity">Miktar</label>
+            <input
+              id="calc-quantity"
+              type="number"
+              min="0.0001"
+              step="any"
+              value="1"
+              placeholder="Miktar girin"
+              inputmode="decimal"
+            >
+          </div>
+        </div>
+
+        <div class="calc-actions">
+          <button
+            id="calc-buy"
+            type="button"
+            class="calc-action active"
+            aria-pressed="true"
+          >
+            Alış Hesapla
+          </button>
+
+          <button
+            id="calc-sell"
+            type="button"
+            class="calc-action"
+            aria-pressed="false"
+          >
+            Satış Hesapla
+          </button>
+        </div>
+
+        <div class="calc-result" aria-live="polite">
+          <span id="calc-result-label">
+            Tahmini ödenecek tutar
+          </span>
+
+          <strong id="calc-total">
+            Fiyatlar yükleniyor…
+          </strong>
+
+          <div class="calc-details">
+            <span id="calc-unit-price">
+              Birim fiyat: —
+            </span>
+            <span id="calc-amount">
+              Miktar: 1
+            </span>
+          </div>
+        </div>
+
+        <p class="note">
+          Bu araç yalnızca bilgilendirme amaçlı hesaplama yapar.
+          Gerçek alım-satım işlemi gerçekleştirmez.
+          Fiyatlar işlem yapılan kuruma göre değişebilir.
+        </p>
+      </div>
     </section>
-    <section class="newsletter"><div><span class="eyebrow">ÜÇÇEYREK</span><h2>Finans gündemi, tek adreste.</h2><p>Altın, döviz ve ekonomi haberlerini kolayca takip edin.</p></div><a href="#piyasalar" class="primary">Piyasaları görüntüle ↗</a></section>
+
+    <!-- FİNANS HABERLERİ -->
+
+    <section id="haberler" class="section newssection">
+      <div class="sectionhead">
+        <div>
+          <span class="eyebrow">EKONOMİ GÜNDEMİ</span>
+          <h2>Finans haberleri</h2>
+          <p>Güvenilir kaynaklardan derlenen güncel başlıklar</p>
+        </div>
+
+        <div class="tabs">
+          <button class="active" data-topic="ekonomi">Ekonomi</button>
+          <button data-topic="altın">Altın</button>
+          <button data-topic="döviz">Döviz</button>
+          <button data-topic="borsa">Borsa</button>
+        </div>
+      </div>
+
+      <div id="news" class="newsgrid">
+        <div class="skeleton">Haberler yükleniyor…</div>
+      </div>
+
+      <p class="note">
+        Haber başlıkları kaynak bağlantılarıyla sunulur.
+        Haberlerin tam metinleri kaynak sitelerde açılır.
+      </p>
+    </section>
+
+    <section class="newsletter">
+      <div>
+        <span class="eyebrow">ÜÇÇEYREK</span>
+        <h2>Finans gündemi, tek adreste.</h2>
+        <p>
+          Altın, döviz ve ekonomi haberlerini
+          kolayca takip edin.
+        </p>
+      </div>
+
+      <a href="#piyasalar" class="primary">
+        Piyasaları görüntüle ↗
+      </a>
+    </section>
   </main>
-  <footer><div class="wrap foot"><div><div class="footbrand">ÜÇ<span>ÇEYREK</span></div><p>Altın, Döviz ve Ekonominin Nabzı</p></div><div><p>Bu sitedeki veriler bilgilendirme amaçlıdır; yatırım tavsiyesi değildir.</p><p>© <span id="year"></span> ÜçÇeyrek</p></div></div></footer>
+
+  <footer>
+    <div class="wrap foot">
+      <div>
+        <div class="footbrand">
+          ÜÇ<span>ÇEYREK</span>
+        </div>
+        <p>Altın, Döviz ve Ekonominin Nabzı</p>
+      </div>
+
+      <div>
+        <p>
+          Bu sitedeki veriler bilgilendirme amaçlıdır;
+          yatırım tavsiyesi değildir.
+        </p>
+        <p>
+          © <span id="year"></span> ÜçÇeyrek
+        </p>
+      </div>
+    </div>
+  </footer>
+
   <script src="/app.js"></script>
 </body>
 </html>
