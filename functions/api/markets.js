@@ -6,7 +6,7 @@ export async function onRequestGet({ env }) {
   };
 
   try {
-    const apiKey = env.HESAPLI_ALTIN_API_KEY;
+    const apiKey = env.c595_6774f2805b50a773d4a096ad7dd7fef9;
 
     if (!apiKey) {
       throw new Error("API anahtarı tanımlı değil");
