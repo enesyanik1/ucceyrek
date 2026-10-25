@@ -743,3 +743,74 @@ footer {
     transition: none;
   }
 }
+/* ÜÇÇEYREK — ALTIN VE DÖVİZ AL-SAT HESAPLAYICI */
+.calc-section { scroll-margin-top: 28px; }
+.calc-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: clamp(20px, 3vw, 36px);
+  box-shadow: 0 12px 38px rgba(21,43,73,.06);
+  max-width: 900px;
+}
+.calc-fields {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 18px;
+}
+.calc-field { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.calc-field label { color: var(--navy); font-size: 13px; font-weight: 750; }
+.calc-field select, .calc-field input {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid #dce4ee;
+  border-radius: 11px;
+  background: #fbfcfe;
+  color: var(--navy);
+  font: inherit;
+  font-size: 15px;
+  padding: 12px 15px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.calc-field select:focus, .calc-field input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(215,163,67,.15);
+}
+.calc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 22px 0; }
+.calc-action {
+  min-height: 49px;
+  border: 1px solid #dce4ee;
+  border-radius: 10px;
+  background: #f6f8fb;
+  color: #53677e;
+  font-size: 14px;
+  font-weight: 800;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.calc-action:hover { border-color: var(--gold); }
+.calc-action.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.calc-result {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  background: linear-gradient(135deg, #f2f6fc, #fffaf1);
+  border: 1px solid #e8edf4;
+  border-radius: 16px;
+  padding: 26px;
+}
+#calc-result-label { color: #63758b; font-size: 13px; font-weight: 700; }
+#calc-total { color: var(--navy); font-size: clamp(28px, 4vw, 43px); font-weight: 850; letter-spacing: -1.2px; overflow-wrap: anywhere; }
+.calc-details { display: flex; flex-wrap: wrap; gap: 10px 24px; color: #66788e; font-size: 13px; }
+.calc-card > .note { margin: 17px 0 0; }
+@media (max-width: 650px) {
+  .calc-card { padding: 18px; border-radius: 16px; }
+  .calc-fields { grid-template-columns: 1fr; gap: 16px; }
+  .calc-actions { gap: 9px; }
+  .calc-action { font-size: 12px; padding: 10px 6px; }
+  .calc-result { padding: 20px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .calc-action, .calc-field select, .calc-field input { transition: none; }
+}
